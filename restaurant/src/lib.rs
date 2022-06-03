@@ -1,15 +1,4 @@
-mod front_of_house {
-    pub mod hosting {
-        pub fn add_to_waitlist() {}
-        pub fn seat_at_table() {}
-    }
-    pub mod serving {
-        pub fn take_order() {}
-        pub fn serve_order() {}
-        pub fn take_payment() {}
-    }
-}
-
+mod front_of_house;
 
 fn deliver_order() {}
 
@@ -41,18 +30,21 @@ mod back_of_house {
     fn cook_order() {}
 }
 
-use crate::front
+mod customer {
+    use crate::front_of_house::hosting;
+    use crate::back_of_house;
 
-pub fn eat_at_restaurant() {
-    crate::front_of_house::hosting::add_to_waitlist();
+    pub fn eat_at_restaurant() {
+        hosting::add_to_waitlist();
 
-    front_of_house::hosting::add_to_waitlist();
+        hosting::add_to_waitlist();
 
-    let mut meal = back_of_house::Breakfast::summer("Rye");
+        let mut meal = back_of_house::Breakfast::summer("Rye");
 
-    meal.toast = String::from("Wheat");
-    println!("I'd like {} toast please", meal.toast);
+        meal.toast = String::from("Wheat");
+        println!("I'd like {} toast please", meal.toast);
 
-    let order1 = back_of_house::Appetizer::Soup;
-    let order2 = back_of_house::Appetizer::Salad;
+        let order1 = back_of_house::Appetizer::Soup;
+        let order2 = back_of_house::Appetizer::Salad;
+    }
 }
