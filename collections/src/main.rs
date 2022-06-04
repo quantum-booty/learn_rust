@@ -88,12 +88,63 @@ fn string() {
 
 fn hash_map() {
     let mut scores = HashMap::new();
+
+    // inserting values
     scores.insert(String::from("Blue"), 10);
     scores.insert(String::from("Yellow"), 50);
+
+    // initialising from a vector using collect
+    let teams = vec![String::from("Blue"), String::from("Yellow")];
+    let initial_scores = vec![10, 50];
+    let mut scores1: HashMap<_, _> = teams.into_iter().zip(initial_scores.into_iter()).collect();
+    // HashMap is needed for collect to infer which collection to transform into
+    // <_, _> concrete types are not needed as the compiler can infer the types from teams and inital_scores
+
+    // ownership
+    // for types that implement the Copy trait, like i32,
+    // the values are copied into the hash map
+    //
+    // for owned values like String, the values will be moved
+    // and the hash map will be the owner of those values
+    //
+    // if we insert references into the hash map,
+    // the values won't be moved into the hash map
+    // the values that the references point to must be valid for
+    // at least as long as the hash map is valid
+
+    // accessing values
+    let team_name = String::from("Blue");
+    let score = scores1.get(&team_name);
+    assert_eq!(score, Some(&10));
+
+    // iterating the key and value
+    for (key, value) in &scores {
+        println!("{}: {}", key, value);
+    }
+
+    // overwriting a value
+    scores.insert(String::from("Nice"), 10);
+    scores.insert(String::from("Nice"), 69);
+    assert_eq!(scores.get("Nice"), Some(&69));
+
+    // insert a value if key has no value
+    // i.e. get or add
+    scores.entry(String::from("Moggers")).or_insert(50);
+
+    // update a value based on the old value
+    let text = "hello darkness my old friend hello moggers my gf";
+    let mut map = HashMap::new();
+    for word in text.split_whitespace() {
+        let count = map.entry(word).or_insert(0);
+        *count += 1;
+    }
+    for (key, val) in map {
+        println!("{}: {}", key, val);
+    }
 }
 
 fn main() {
-    // vector()
-    // string()
-    hash_map()
+    vector();
+    string();
+    hash_map();
 }
