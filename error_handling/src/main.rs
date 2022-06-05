@@ -23,7 +23,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Box<dyn Error> mean "any kind of error"
     // the executable will exit with a value 0 if main returns Ok(())
     // or exit with nonzero value if main returns an Err value
-    let f = File::open("yayayaa.txt")?;
+    let _f = File::open("yayayaa.txt")?;
     Ok(())
 }
 
@@ -71,7 +71,7 @@ fn read_user_name_from_file() -> Result<String, io::Error> {
 
 fn handling_error_with_match() {
     let f = File::open("hello.txt");
-    let f = match f {
+    let _f = match f {
         Ok(file) => file,
         Err(error) => match error.kind() {
             ErrorKind::NotFound => match File::create("hello.txt") {
@@ -86,7 +86,7 @@ fn handling_error_with_match() {
 }
 
 fn handling_error_with_closure() {
-    let f = File::open("hello.txt").unwrap_or_else(|error| {
+    let _f = File::open("hello.txt").unwrap_or_else(|error| {
         if error.kind() == ErrorKind::NotFound {
             File::create("hello.txt").unwrap_or_else(|error| {
                 panic!("Problem creating the file: {:?}", error);
@@ -98,6 +98,6 @@ fn handling_error_with_closure() {
 }
 
 fn unwrap() {
-    let f = File::open("hello.txt").unwrap(); // would panic if Err
-    let f = File::open("hello.txt").expect("would panic with this message if Err");
+    let _f = File::open("hello.txt").unwrap(); // would panic if Err
+    let _f = File::open("hello.txt").expect("would panic with this message if Err");
 }
