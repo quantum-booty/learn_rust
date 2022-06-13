@@ -46,10 +46,12 @@ fn main() {
 
     // Default
     // default traits implements the default function
+    // useful for unwrap_or_default
     let x4 = X::default();
     println!("{:?}", x4);
 
     // Hash
+    // useful for hashset and hashmap etc
     let mut hasher = DefaultHasher::new();
     x1.hash(&mut hasher);
     println!("the hash is {}", hasher.finish());
