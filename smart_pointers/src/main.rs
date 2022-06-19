@@ -1,5 +1,5 @@
 mod boxing;
-mod combining_Rc_and_RefCell;
+mod combining_rc_and_ref_cell;
 mod deref;
 mod drop;
 mod interior_mutability;
@@ -13,17 +13,18 @@ fn main() {
     //
     // Drop: allows to customise the code to run when an instance of the smart
     // pointer goes out of scope
+
     boxing::boxing();
     deref::deref();
     drop::drop();
     reference_counted::reference_counted();
     interior_mutability::interior_mutability();
-    combining_Rc_and_RefCell::combining_Rc_and_RefCell();
+    combining_rc_and_ref_cell::combining_rc_and_ref_cell();
 
     //                 ownership | single threaded only | allow mutable borrow | borrow rule enforced at
-    // Rc              multiple  | true                 | false                | compile time
-    // Box             single    | false                | true                 | compile time
-    // RefCell         single    | true                 | interior mutable     | run time
+    // Rc<T>           multiple  | true                 | false                | compile time
+    // Box<T>          single    | false                | true                 | compile time
+    // RefCell<T>      single    | true                 | interior mutable     | run time
     // Rc<RefCell<T>>  multiple  | true                 | interior mutable     | compile time + run time
 
     // interior mutability

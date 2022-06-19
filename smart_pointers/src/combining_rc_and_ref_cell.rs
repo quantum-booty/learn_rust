@@ -1,4 +1,4 @@
-use crate::combining_Rc_and_RefCell::List::{Cons, Nil};
+use crate::combining_rc_and_ref_cell::List::{Cons, Nil};
 use std::{cell::RefCell, rc::Rc};
 
 #[derive(Debug)]
@@ -7,7 +7,7 @@ enum List {
     Nil,
 }
 
-pub fn combining_Rc_and_RefCell() {
+pub fn combining_rc_and_ref_cell() {
     let value = Rc::new(RefCell::new(5));
 
     let a = Rc::new(Cons(Rc::clone(&value), Rc::new(Nil)));
