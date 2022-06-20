@@ -4,6 +4,7 @@ mod deref;
 mod drop;
 mod interior_mutability;
 mod reference_counted;
+mod reference_cycle_causes_memory_leak;
 
 fn main() {
     // A smart pointer is something that implements the Deref and Drop traits
@@ -20,6 +21,7 @@ fn main() {
     reference_counted::reference_counted();
     interior_mutability::interior_mutability();
     combining_rc_and_ref_cell::combining_rc_and_ref_cell();
+    reference_cycle_causes_memory_leak::reference_cycle_causes_memory_leak();
 
     //                 ownership | single threaded only | allow mutable borrow | borrow rule enforced at
     // Rc<T>           multiple  | true                 | false                | compile time
