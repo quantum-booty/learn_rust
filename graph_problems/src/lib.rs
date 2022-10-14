@@ -40,6 +40,21 @@ pub fn depth_first_search_rec(graph: &HashMap<i32, Vec<i32>>, starting_node: i32
     result
 }
 
+pub fn create_graph_from_adjacency_list(edges: &[(i32, i32)]) -> HashMap<i32, Vec<i32>> {
+    let mut graph = HashMap::<i32, Vec<i32>>::new();
+    for (from, to) in edges {
+        graph
+            .entry(*from)
+            .and_modify(|childs| childs.push(*to))
+            .or_insert_with(|| vec![*to]);
+        graph
+            .entry(*to)
+            .and_modify(|childs| childs.push(*from))
+            .or_insert_with(|| vec![*from]);
+    }
+    graph
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
@@ -65,5 +80,21 @@ mod tests {
         let graph = HashMap::from([(1, vec![2, 3]), (2, vec![4]), (3, vec![5, 6])]);
         let result = depth_first_search_rec(&graph, 1);
         assert_eq!(result, vec![1, 2, 4, 3, 5, 6]);
+    }
+
+    #[test]
+    fn test_create_graph_from_adjacency_list() {
+        let edges = [(1, 2), (2, 3), (5, 3), (5, 4), (1, 4)];
+        let result = create_graph_from_adjacency_list(&edges);
+        assert_eq!(
+            result,
+            HashMap::from([
+                (1, vec![2, 4]),
+                (2, vec![1, 3]),
+                (3, vec![2, 5]),
+                (5, vec![3, 4]),
+                (4, vec![5, 1])
+            ])
+        );
     }
 }
