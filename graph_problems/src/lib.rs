@@ -1,4 +1,4 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 pub fn breath_first_search(graph: &HashMap<i32, Vec<i32>>, starting_node: i32) -> Vec<i32> {
     let mut queue: VecDeque<i32> = VecDeque::from([starting_node]);
@@ -101,6 +101,89 @@ pub fn has_path_dfs_rec(
     false
 }
 
+pub fn has_path_bfs_undirected(
+    graph: &HashMap<i32, Vec<i32>>,
+    starting_node: i32,
+    destination: i32,
+) -> bool {
+    let mut visited = HashSet::<i32>::new();
+    let mut queue = VecDeque::from([starting_node]);
+    while !queue.is_empty() {
+        let current_node = queue.pop_front().unwrap();
+
+        if visited.contains(&current_node) {
+            continue;
+        }
+        visited.insert(current_node);
+
+        if current_node == destination {
+            return true;
+        }
+        if let Some(childs) = graph.get(&current_node) {
+            queue.append(&mut childs.to_owned().into());
+        }
+    }
+    false
+}
+
+pub fn has_path_dfs_undirected(
+    graph: &HashMap<i32, Vec<i32>>,
+    starting_node: i32,
+    destination: i32,
+) -> bool {
+    let mut visited = HashSet::<i32>::new();
+    let mut stack = vec![starting_node];
+    while !stack.is_empty() {
+        let current_node = stack.pop().unwrap();
+
+        if visited.contains(&current_node) {
+            continue;
+        }
+        visited.insert(current_node);
+
+        if current_node == destination {
+            return true;
+        }
+        if let Some(childs) = graph.get(&current_node) {
+            stack.append(&mut childs.to_owned());
+        }
+    }
+    false
+}
+
+pub fn has_path_dfs_rec_undirected(
+    graph: &HashMap<i32, Vec<i32>>,
+    starting_node: i32,
+    destination: i32,
+) -> bool {
+    let mut visited = HashSet::<i32>::new();
+    fn rec(
+        graph: &HashMap<i32, Vec<i32>>,
+        current_node: i32,
+        destination: i32,
+        visited: &mut HashSet<i32>,
+    ) -> bool {
+        if current_node == destination {
+            return true;
+        }
+
+        if visited.contains(&current_node) {
+            return false;
+        }
+        visited.insert(current_node);
+
+        if let Some(childs) = graph.get(&current_node) {
+            for child in childs {
+                if rec(graph, *child, destination, visited) {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+    rec(graph, starting_node, destination, &mut visited)
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
@@ -145,7 +228,7 @@ mod tests {
     }
 
     #[test]
-    fn test_has_path() {
+    fn test_has_path_bfs() {
         let graph = HashMap::<i32, Vec<i32>>::from([
             (1, vec![2, 3]),
             (2, vec![4]),
@@ -160,6 +243,7 @@ mod tests {
         ]);
 
         assert!(has_path_bfs(&graph, 7, 6));
+        assert!(!has_path_bfs(&graph, 7, 99));
     }
 
     #[test]
@@ -178,6 +262,7 @@ mod tests {
         ]);
 
         assert!(has_path_dfs(&graph, 7, 6));
+        assert!(!has_path_dfs(&graph, 7, 99));
     }
 
     #[test]
@@ -196,5 +281,63 @@ mod tests {
         ]);
 
         assert!(has_path_dfs_rec(&graph, 7, 6));
+        assert!(!has_path_dfs_rec(&graph, 7, 99));
+    }
+
+    #[test]
+    fn test_has_path_bfs_undirected() {
+        let graph = HashMap::<i32, Vec<i32>>::from([
+            (1, vec![2, 3]),
+            (2, vec![1, 4]),
+            (3, vec![1, 5, 6]),
+            (4, vec![2]),
+            (5, vec![3]),
+            (6, vec![3]),
+            (7, vec![8, 9, 10]),
+            (8, vec![7]),
+            (9, vec![7]),
+            (10, vec![7]),
+        ]);
+
+        assert!(has_path_bfs_undirected(&graph, 2, 6));
+        assert!(!has_path_bfs_undirected(&graph, 2, 99));
+    }
+
+    #[test]
+    fn test_has_path_dfs_undirected() {
+        let graph = HashMap::<i32, Vec<i32>>::from([
+            (1, vec![2, 3]),
+            (2, vec![1, 4]),
+            (3, vec![1, 5, 6]),
+            (4, vec![2]),
+            (5, vec![3]),
+            (6, vec![3]),
+            (7, vec![8, 9, 10]),
+            (8, vec![7]),
+            (9, vec![7]),
+            (10, vec![7]),
+        ]);
+
+        assert!(has_path_dfs_undirected(&graph, 2, 6));
+        assert!(!has_path_dfs_undirected(&graph, 2, 99));
+    }
+
+    #[test]
+    fn test_has_path_dfs_rec_undirected() {
+        let graph = HashMap::<i32, Vec<i32>>::from([
+            (1, vec![2, 3]),
+            (2, vec![1, 4]),
+            (3, vec![1, 5, 6]),
+            (4, vec![2]),
+            (5, vec![3]),
+            (6, vec![3]),
+            (7, vec![8, 9, 10]),
+            (8, vec![7]),
+            (9, vec![7]),
+            (10, vec![7]),
+        ]);
+
+        assert!(has_path_dfs_rec_undirected(&graph, 2, 6));
+        assert!(!has_path_dfs_rec_undirected(&graph, 2, 99));
     }
 }
