@@ -55,7 +55,11 @@ pub fn create_graph_from_adjacency_list(edges: &[(i32, i32)]) -> HashMap<i32, Ve
     graph
 }
 
-pub fn has_path_bfs(graph: &HashMap<i32, Vec<i32>>, starting_node: i32, destination: i32) -> bool {
+pub fn has_path_bfs_directed(
+    graph: &HashMap<i32, Vec<i32>>,
+    starting_node: i32,
+    destination: i32,
+) -> bool {
     let mut queue = VecDeque::from([starting_node]);
     while !queue.is_empty() {
         let current_node = queue.pop_front().unwrap();
@@ -69,7 +73,11 @@ pub fn has_path_bfs(graph: &HashMap<i32, Vec<i32>>, starting_node: i32, destinat
     false
 }
 
-pub fn has_path_dfs(graph: &HashMap<i32, Vec<i32>>, starting_node: i32, destination: i32) -> bool {
+pub fn has_path_dfs_directed(
+    graph: &HashMap<i32, Vec<i32>>,
+    starting_node: i32,
+    destination: i32,
+) -> bool {
     let mut stack = vec![starting_node];
     while !stack.is_empty() {
         let current_node = stack.pop().unwrap();
@@ -83,7 +91,7 @@ pub fn has_path_dfs(graph: &HashMap<i32, Vec<i32>>, starting_node: i32, destinat
     false
 }
 
-pub fn has_path_dfs_rec(
+pub fn has_path_dfs_rec_directed(
     graph: &HashMap<i32, Vec<i32>>,
     current_node: i32,
     destination: i32,
@@ -93,7 +101,7 @@ pub fn has_path_dfs_rec(
     }
     if let Some(childs) = graph.get(&current_node) {
         for child in childs {
-            if has_path_dfs_rec(graph, *child, destination) {
+            if has_path_dfs_rec_directed(graph, *child, destination) {
                 return true;
             }
         }
@@ -184,6 +192,58 @@ pub fn has_path_dfs_rec_undirected(
     rec(graph, starting_node, destination, &mut visited)
 }
 
+pub fn connected_components_counts_bfs(graph: &HashMap<i32, Vec<i32>>) -> i32 {
+    let mut count = 0;
+    let mut visited = HashSet::new();
+
+    for current_node in graph.keys() {
+        if visited.contains(current_node) {
+            continue;
+        }
+        let mut queue = VecDeque::<i32>::from(vec![*current_node]);
+        while !queue.is_empty() {
+            let current_node = queue.pop_front().unwrap();
+
+            if visited.contains(&current_node) {
+                continue;
+            }
+            visited.insert(current_node);
+
+            if let Some(childs) = graph.get(&current_node) {
+                queue.append(&mut childs.to_owned().into());
+            }
+        }
+        count += 1;
+    }
+    count
+}
+
+pub fn connected_components_counts_dfs(graph: &HashMap<i32, Vec<i32>>) -> i32 {
+    let mut count = 0;
+    let mut visited = HashSet::new();
+
+    for current_node in graph.keys() {
+        if visited.contains(current_node) {
+            continue;
+        }
+        let mut stack = vec![*current_node];
+        while !stack.is_empty() {
+            let current_node = stack.pop().unwrap();
+
+            if visited.contains(&current_node) {
+                continue;
+            }
+            visited.insert(current_node);
+
+            if let Some(childs) = graph.get(&current_node) {
+                stack.append(&mut childs.to_owned());
+            }
+        }
+        count += 1;
+    }
+    count
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
@@ -228,7 +288,7 @@ mod tests {
     }
 
     #[test]
-    fn test_has_path_bfs() {
+    fn test_has_path_directed_graph() {
         let graph = HashMap::<i32, Vec<i32>>::from([
             (1, vec![2, 3]),
             (2, vec![4]),
@@ -242,50 +302,18 @@ mod tests {
             (10, vec![]),
         ]);
 
-        assert!(has_path_bfs(&graph, 7, 6));
-        assert!(!has_path_bfs(&graph, 7, 99));
+        assert!(has_path_bfs_directed(&graph, 7, 6));
+        assert!(!has_path_bfs_directed(&graph, 7, 99));
+
+        assert!(has_path_dfs_directed(&graph, 7, 6));
+        assert!(!has_path_dfs_directed(&graph, 7, 99));
+
+        assert!(has_path_dfs_rec_directed(&graph, 7, 6));
+        assert!(!has_path_dfs_rec_directed(&graph, 7, 99));
     }
 
     #[test]
-    fn test_has_path_dfs() {
-        let graph = HashMap::<i32, Vec<i32>>::from([
-            (1, vec![2, 3]),
-            (2, vec![4]),
-            (3, vec![5, 6]),
-            (4, vec![]),
-            (5, vec![]),
-            (6, vec![]),
-            (7, vec![8, 9, 10]),
-            (8, vec![]),
-            (9, vec![6]),
-            (10, vec![]),
-        ]);
-
-        assert!(has_path_dfs(&graph, 7, 6));
-        assert!(!has_path_dfs(&graph, 7, 99));
-    }
-
-    #[test]
-    fn test_has_path_dfs_rec() {
-        let graph = HashMap::<i32, Vec<i32>>::from([
-            (1, vec![2, 3]),
-            (2, vec![4]),
-            (3, vec![5, 6]),
-            (4, vec![]),
-            (5, vec![]),
-            (6, vec![]),
-            (7, vec![8, 9, 10]),
-            (8, vec![]),
-            (9, vec![6]),
-            (10, vec![]),
-        ]);
-
-        assert!(has_path_dfs_rec(&graph, 7, 6));
-        assert!(!has_path_dfs_rec(&graph, 7, 99));
-    }
-
-    #[test]
-    fn test_has_path_bfs_undirected() {
+    fn test_has_path_undirected() {
         let graph = HashMap::<i32, Vec<i32>>::from([
             (1, vec![2, 3]),
             (2, vec![1, 4]),
@@ -301,29 +329,16 @@ mod tests {
 
         assert!(has_path_bfs_undirected(&graph, 2, 6));
         assert!(!has_path_bfs_undirected(&graph, 2, 99));
-    }
-
-    #[test]
-    fn test_has_path_dfs_undirected() {
-        let graph = HashMap::<i32, Vec<i32>>::from([
-            (1, vec![2, 3]),
-            (2, vec![1, 4]),
-            (3, vec![1, 5, 6]),
-            (4, vec![2]),
-            (5, vec![3]),
-            (6, vec![3]),
-            (7, vec![8, 9, 10]),
-            (8, vec![7]),
-            (9, vec![7]),
-            (10, vec![7]),
-        ]);
 
         assert!(has_path_dfs_undirected(&graph, 2, 6));
         assert!(!has_path_dfs_undirected(&graph, 2, 99));
+
+        assert!(has_path_dfs_rec_undirected(&graph, 2, 6));
+        assert!(!has_path_dfs_rec_undirected(&graph, 2, 99));
     }
 
     #[test]
-    fn test_has_path_dfs_rec_undirected() {
+    fn test_connected_components() {
         let graph = HashMap::<i32, Vec<i32>>::from([
             (1, vec![2, 3]),
             (2, vec![1, 4]),
@@ -335,9 +350,11 @@ mod tests {
             (8, vec![7]),
             (9, vec![7]),
             (10, vec![7]),
+            (11, vec![12]),
+            (12, vec![11]),
         ]);
 
-        assert!(has_path_dfs_rec_undirected(&graph, 2, 6));
-        assert!(!has_path_dfs_rec_undirected(&graph, 2, 99));
+        assert_eq!(connected_components_counts_bfs(&graph), 3);
+        assert_eq!(connected_components_counts_dfs(&graph), 3);
     }
 }
