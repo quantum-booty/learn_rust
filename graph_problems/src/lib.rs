@@ -361,6 +361,35 @@ pub fn largest_component_rec_dfs(graph: &HashMap<i32, Vec<i32>>) -> i32 {
     count
 }
 
+pub fn shortest_path_bfs(
+    graph: &HashMap<i32, Vec<i32>>,
+    starting_node: i32,
+    destination: i32,
+) -> i32 {
+    let mut visited = HashSet::<i32>::new();
+    let mut queue = VecDeque::<(i32, i32)>::from([(starting_node, 0)]);
+
+    while !queue.is_empty() {
+        let (current_node, distance) = queue.pop_front().unwrap();
+
+        if visited.contains(&current_node) {
+            continue;
+        }
+        visited.insert(current_node);
+
+        if current_node == destination {
+            return distance;
+        }
+
+        if let Some(childs) = graph.get(&current_node) {
+            for child in childs {
+                queue.push_back((*child, distance + 1))
+            }
+        }
+    }
+    -1
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
@@ -372,8 +401,10 @@ mod tests {
         let graph = HashMap::from([(1, vec![2, 3]), (2, vec![4]), (3, vec![5, 6])]);
         let expected = vec![1, 2, 3, 4, 5, 6];
         assert_eq!(breath_first_search_directed(&graph, 1), expected);
-        assert_eq!(depth_first_search_directed(&graph, 1), expected);
+        let expected = vec![1, 2, 4, 3, 5, 6];
         assert_eq!(depth_first_search_rec_directed(&graph, 1), expected);
+        let expected = vec![1, 3, 6, 5, 2, 4];
+        assert_eq!(depth_first_search_directed(&graph, 1), expected);
     }
 
     #[test]
@@ -484,5 +515,19 @@ mod tests {
         assert_eq!(largest_component_bfs(&graph), 6);
         assert_eq!(largest_component_dfs(&graph), 6);
         assert_eq!(largest_component_rec_dfs(&graph), 6);
+    }
+
+    #[test]
+    fn test_shortest_path() {
+        let graph = HashMap::<i32, Vec<i32>>::from([
+            (1, vec![2, 3]),
+            (2, vec![1, 4]),
+            (3, vec![1, 5, 6]),
+            (4, vec![2, 5]),
+            (5, vec![3, 4, 6]),
+            (6, vec![3, 5]),
+        ]);
+
+        assert_eq!(shortest_path_bfs(&graph, 1, 6), 2);
     }
 }
