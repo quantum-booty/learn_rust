@@ -194,7 +194,7 @@ pub fn has_path_dfs_rec_undirected(
 
 pub fn connected_components_counts_bfs(graph: &HashMap<i32, Vec<i32>>) -> i32 {
     let mut count = 0;
-    let mut visited = HashSet::new();
+    let mut visited = HashSet::<i32>::new();
 
     for current_node in graph.keys() {
         if visited.contains(current_node) {
@@ -220,7 +220,7 @@ pub fn connected_components_counts_bfs(graph: &HashMap<i32, Vec<i32>>) -> i32 {
 
 pub fn connected_components_counts_dfs(graph: &HashMap<i32, Vec<i32>>) -> i32 {
     let mut count = 0;
-    let mut visited = HashSet::new();
+    let mut visited = HashSet::<i32>::new();
 
     for current_node in graph.keys() {
         if visited.contains(current_node) {
@@ -241,6 +241,34 @@ pub fn connected_components_counts_dfs(graph: &HashMap<i32, Vec<i32>>) -> i32 {
         }
         count += 1;
     }
+    count
+}
+
+pub fn connected_components_counts_rec_dfs(graph: &HashMap<i32, Vec<i32>>) -> i32 {
+    let mut count = 0;
+    let mut visited = HashSet::<i32>::new();
+
+    fn rec(graph: &HashMap<i32, Vec<i32>>, visited: &mut HashSet<i32>, current_node: i32) -> bool {
+        if visited.contains(&current_node) {
+            return false;
+        }
+
+        visited.insert(current_node);
+        if let Some(childs) = graph.get(&current_node) {
+            for child in childs {
+                rec(graph, visited, *child);
+            }
+        }
+
+        true
+    }
+
+    for current_node in graph.keys() {
+        if rec(graph, &mut visited, *current_node) {
+            count += 1;
+        }
+    }
+
     count
 }
 
@@ -356,5 +384,6 @@ mod tests {
 
         assert_eq!(connected_components_counts_bfs(&graph), 3);
         assert_eq!(connected_components_counts_dfs(&graph), 3);
+        assert_eq!(connected_components_counts_rec_dfs(&graph), 3);
     }
 }
