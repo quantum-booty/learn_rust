@@ -390,6 +390,45 @@ pub fn shortest_path_bfs(
     -1
 }
 
+pub fn cycle_in_graph(graph: &HashMap<i32, Vec<i32>>) -> bool {
+    let mut visited = HashSet::<i32>::new();
+    let mut currently_in_stack = HashSet::<i32>::new();
+
+    for node in graph.keys() {
+        if visited.contains(node) {
+            continue;
+        }
+        if is_node_in_cycle(graph, *node, &mut visited, &mut currently_in_stack) {
+            return true;
+        }
+    }
+    false
+}
+
+fn is_node_in_cycle(
+    graph: &HashMap<i32, Vec<i32>>,
+    node: i32,
+    visited: &mut HashSet<i32>,
+    currently_in_stack: &mut HashSet<i32>,
+) -> bool {
+    visited.insert(node);
+    currently_in_stack.insert(node);
+
+    if let Some(childs) = graph.get(&node) {
+        for child in childs {
+            if (!visited.contains(child)
+                && is_node_in_cycle(graph, *child, visited, currently_in_stack))
+                || currently_in_stack.contains(child)
+            {
+                return true;
+            }
+        }
+    }
+    currently_in_stack.remove(&node);
+
+    false
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
@@ -529,5 +568,20 @@ mod tests {
         ]);
 
         assert_eq!(shortest_path_bfs(&graph, 1, 6), 2);
+    }
+
+    #[test]
+    fn test_cycle_in_graph() {
+        let graph = HashMap::<i32, Vec<i32>>::from([
+            (1, vec![2, 3]),
+            (2, vec![3]),
+            (3, vec![3]),
+            (4, vec![5]),
+            (5, vec![2]),
+        ]);
+        assert!(cycle_in_graph(&graph));
+
+        let graph = HashMap::<i32, Vec<i32>>::from([(1, vec![2, 3]), (2, vec![4]), (3, vec![5])]);
+        assert!(!cycle_in_graph(&graph));
     }
 }
