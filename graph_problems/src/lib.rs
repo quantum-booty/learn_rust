@@ -272,6 +272,89 @@ pub fn connected_components_counts_rec_dfs(graph: &HashMap<i32, Vec<i32>>) -> i3
     count
 }
 
+pub fn largest_component_bfs(graph: &HashMap<i32, Vec<i32>>) -> i32 {
+    let mut count: i32 = 0;
+    let mut visited = HashSet::<i32>::new();
+
+    for current_node in graph.keys() {
+        if visited.contains(current_node) {
+            continue;
+        }
+        let mut queue = VecDeque::<i32>::from(vec![*current_node]);
+        while !queue.is_empty() {
+            let current_node = queue.pop_front().unwrap();
+
+            if visited.contains(&current_node) {
+                continue;
+            }
+            visited.insert(current_node);
+
+            if let Some(childs) = graph.get(&current_node) {
+                queue.append(&mut childs.to_owned().into());
+            }
+        }
+        count = count.max(visited.len().try_into().unwrap());
+        visited.clear();
+    }
+    count
+}
+
+pub fn largest_component_dfs(graph: &HashMap<i32, Vec<i32>>) -> i32 {
+    let mut count: i32 = 0;
+    let mut visited = HashSet::<i32>::new();
+
+    for current_node in graph.keys() {
+        if visited.contains(current_node) {
+            continue;
+        }
+        let mut queue = vec![*current_node];
+        while !queue.is_empty() {
+            let current_node = queue.pop().unwrap();
+
+            if visited.contains(&current_node) {
+                continue;
+            }
+            visited.insert(current_node);
+
+            if let Some(childs) = graph.get(&current_node) {
+                queue.append(&mut childs.to_owned());
+            }
+        }
+        count = count.max(visited.len().try_into().unwrap());
+        visited.clear();
+    }
+    count
+}
+
+pub fn largest_component_rec_dfs(graph: &HashMap<i32, Vec<i32>>) -> i32 {
+    fn rec(graph: &HashMap<i32, Vec<i32>>, visited: &mut HashSet<i32>, current_node: i32) {
+        if !visited.contains(&current_node) {
+            visited.insert(current_node);
+
+            if let Some(childs) = graph.get(&current_node) {
+                for child in childs {
+                    rec(graph, visited, *child);
+                }
+            }
+        }
+    }
+
+    let mut count: i32 = 0;
+    let mut visited = HashSet::<i32>::new();
+
+    for current_node in graph.keys() {
+        if visited.contains(current_node) {
+            continue;
+        }
+
+        rec(graph, &mut visited, *current_node);
+
+        count = count.max(visited.len().try_into().unwrap());
+        visited.clear();
+    }
+    count
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
@@ -385,5 +468,27 @@ mod tests {
         assert_eq!(connected_components_counts_bfs(&graph), 3);
         assert_eq!(connected_components_counts_dfs(&graph), 3);
         assert_eq!(connected_components_counts_rec_dfs(&graph), 3);
+    }
+
+    #[test]
+    fn test_largest_component() {
+        let graph = HashMap::<i32, Vec<i32>>::from([
+            (1, vec![2, 3]),
+            (2, vec![1, 4]),
+            (3, vec![1, 5, 6]),
+            (4, vec![2]),
+            (5, vec![3]),
+            (6, vec![3]),
+            (7, vec![8, 9, 10]),
+            (8, vec![7]),
+            (9, vec![7]),
+            (10, vec![7]),
+            (11, vec![12]),
+            (12, vec![11]),
+        ]);
+
+        assert_eq!(largest_component_bfs(&graph), 6);
+        assert_eq!(largest_component_dfs(&graph), 6);
+        assert_eq!(largest_component_rec_dfs(&graph), 6);
     }
 }
