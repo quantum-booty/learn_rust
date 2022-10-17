@@ -391,6 +391,30 @@ pub fn shortest_path_bfs(
 }
 
 pub fn cycle_in_graph(graph: &HashMap<i32, Vec<i32>>) -> bool {
+    fn is_node_in_cycle(
+        graph: &HashMap<i32, Vec<i32>>,
+        node: i32,
+        visited: &mut HashSet<i32>,
+        currently_in_stack: &mut HashSet<i32>,
+    ) -> bool {
+        visited.insert(node);
+        currently_in_stack.insert(node);
+
+        if let Some(childs) = graph.get(&node) {
+            for child in childs {
+                if (!visited.contains(child)
+                    && is_node_in_cycle(graph, *child, visited, currently_in_stack))
+                    || currently_in_stack.contains(child)
+                {
+                    return true;
+                }
+            }
+        }
+        currently_in_stack.remove(&node);
+
+        false
+    }
+
     let mut visited = HashSet::<i32>::new();
     let mut currently_in_stack = HashSet::<i32>::new();
 
@@ -402,30 +426,6 @@ pub fn cycle_in_graph(graph: &HashMap<i32, Vec<i32>>) -> bool {
             return true;
         }
     }
-    false
-}
-
-fn is_node_in_cycle(
-    graph: &HashMap<i32, Vec<i32>>,
-    node: i32,
-    visited: &mut HashSet<i32>,
-    currently_in_stack: &mut HashSet<i32>,
-) -> bool {
-    visited.insert(node);
-    currently_in_stack.insert(node);
-
-    if let Some(childs) = graph.get(&node) {
-        for child in childs {
-            if (!visited.contains(child)
-                && is_node_in_cycle(graph, *child, visited, currently_in_stack))
-                || currently_in_stack.contains(child)
-            {
-                return true;
-            }
-        }
-    }
-    currently_in_stack.remove(&node);
-
     false
 }
 
